@@ -26,6 +26,8 @@ const rrfConfig = {
 firebase.initializeApp(firebaseConfig);
 //Init firestore
 const firestore = firebase.firestore();
+const settings = { timestampsInSnapshots: true };
+firestore.settings(settings);
 
 
 const createStoreWithFirebase = compose(
