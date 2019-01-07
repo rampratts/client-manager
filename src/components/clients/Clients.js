@@ -26,7 +26,16 @@ class Clients extends Component {
         const { clients } = this.props;
         const { totalOwed } = this.state;
 
-        if (clients) {
+        console.log(clients)
+
+        if (clients && clients.length === 0) {
+            return (
+                <div>
+                    <h1>There are no clients added.</h1>
+                    <p className="lead">To add a new client, press the new button</p>
+                </div>
+            )
+        } else if (clients) {
             return (
                 <div>
                     <div className="row">
@@ -48,7 +57,7 @@ class Clients extends Component {
                             <tr>
                                 <th>Name</th>
                                 <th>Email</th>
-                                <th>Phone</th>
+                                <th>Balance</th>
                                 <th />
                             </tr>
                         </thead>

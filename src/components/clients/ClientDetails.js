@@ -7,8 +7,65 @@ import { firestoreConnect } from "react-redux-firebase";
 import Spinner from "../layout/Spinner";
 
 class ClientDetails extends Component {
+    state = {
+        showBalanceUpdate: false,
+        balanceUpdateAmount: ""
+    }
+
+    toggleForm = () => this.setState({ showBalanceUpdate: !this.state.showBalanceUpdate })
+
+
+    balanceSubmit = e => {
+        e.preventDefault();
+
+        const { client, firestore } = this.props;
+        const { balanceUpdateAmount } = this.state;
+
+        const clientUpdate = {
+            balance: parseFloat(balanceUpdateAmount)
+        }
+
+        firestore.update({ collection: "clients", doc: client.id }, clientUpdate);
+    }
+
+    onDeleteClick = e => {
+        const { client, firestore, history } = this.props;
+
+        firestore.delete({ collection: "clients", doc: client.id })
+            .then(history.push("/"));
+    }
+
+    onChange = (e) => this.setState({ [e.target.name]: e.target.value })
+
     render() {
         const { client } = this.props;
+        const { showBalanceUpdate, balanceUpdateAmount } = this.state;
+
+        let balanceForm = "";
+
+
+        if (showBalanceUpdate) {
+            balanceForm = (
+                <form onSubmit={this.balanceSubmit}>
+                    <div className="input-group">
+                        <input type="number"
+                            className="form-control"
+                            name="balanceUpdateAmount"
+                            placeholder="Add New Balance"
+                            value={balanceUpdateAmount}
+                            onChange={this.onChange}
+                        />
+                        <div className="input-group-append">
+                            <input type="submit" value="Update"
+                                className="btn btn-outline-primary"
+                            />
+                        </div>
+                    </div>
+                </form>
+            )
+        } else {
+            balanceForm = null;
+        }
 
         if (client) {
             return (
@@ -23,7 +80,7 @@ class ClientDetails extends Component {
                             <Link to={`/client/edit/${client.id}`} className="btn btn-dark">
                                 Edit
                             </Link>
-                            <button className="btn btn-danger" type="button">Delete</button>
+                            <button onClick={this.onDeleteClick} className="btn btn-danger" type="button">Delete</button>
                         </div>
                     </div>
 
@@ -42,7 +99,13 @@ class ClientDetails extends Component {
                                         <span className={parseFloat(client.balance) > 0 ? "text-danger" : "text-success"}>
                                             ${parseFloat(client.balance).toFixed(2)}
                                         </span>
+                                        <small>
+                                            <a href="#!" onClick={this.toggleForm}>
+                                                <i className="fas fa-pencil-alt ml-1"></i>
+                                            </a>
+                                        </small>
                                     </p>
+                                    {balanceForm}
                                 </div>
                             </div>
                             <ul className="list-group list-group-flush">
@@ -57,6 +120,10 @@ class ClientDetails extends Component {
             return <Spinner />;
         }
     }
+}
+
+ClientDetails.propTypes = {
+    firestore: PropTypes.object.isRequired
 }
 
 
